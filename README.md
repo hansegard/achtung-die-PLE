@@ -20,7 +20,13 @@ Try to run flappy bird example from folder (ffmpeg download maybe required):
 ```
 python ./example.py
 ```
+Test output in "hard drive"/tmp/random-agent-result.  
 
+TODO:  
+Write a snake implementation using gym-ple  
+Modify snake to work like achtung die kurve  
+Train  
+Win  
 https://github.com/lusob/gym-ple  
 https://github.com/ntasfi/PyGame-Learning-Environment  
 https://gym.openai.com/  
