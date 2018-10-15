@@ -43,6 +43,7 @@ if __name__ == '__main__':
         ob = env.reset()
 
         while True:
+            env.render()
             action = agent.act(ob, reward, done)
             ob, reward, done, _ = env.step(action)
             if done:
