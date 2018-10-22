@@ -2,7 +2,6 @@ import logging
 import os, sys
 
 import gym
-from gym.wrappers import Monitor
 import gym_ple
 
 # The world's simplest agent!
@@ -20,14 +19,14 @@ if __name__ == '__main__':
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
-    env = gym.make('FlappyBird-v0' if len(sys.argv)<2 else sys.argv[1])
+    env = gym.make('AchtungDieKurve-v0' if len(sys.argv)<2 else sys.argv[1])
 
     # You provide the directory to write to (can be an existing
     # directory, including one with existing data -- all monitor files
     # will be namespaced). You can also dump to a tempdir if you'd
     # like: tempfile.mkdtemp().
-    outdir = '/tmp/random-agent-results'
-    env = Monitor(env, directory=outdir, force=True)
+    #outdir = '/tmp/random-agent-results'
+    #env = Monitor(env, directory=outdir, force=True)
 
     # This declaration must go *after* the monitor call, since the
     # monitor's seeding creates a new action_space instance with the
