@@ -6,14 +6,14 @@ from gym.wrappers import Monitor
 from agentStuff import DQNAgent
 import matplotlib.pyplot as plt
 
-import gym_ple
+import gym_achtung
 
 
 if __name__ == '__main__':
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
-    env = gym.make('AchtungDieKurve-v0' if len(sys.argv)<2 else sys.argv[1])
+    env = gym.make('AchtungDieKurve-v1' if len(sys.argv)<2 else sys.argv[1])
 
 
     # Initializations
@@ -24,7 +24,7 @@ if __name__ == '__main__':
     agent = DQNAgent(state_size=obs_dim, action_size=num_actions)
 
 
-    outdir = '/Users/adamlilja/Documents/Skola/deep-machine-learning/project/training-results'
+    outdir = '/Users/erikbohnsack/Code/achtung-die-PLE/tmp'
     env = Monitor(env, directory=outdir, force=True)
     env.seed(0)
 
