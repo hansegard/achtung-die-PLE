@@ -1,6 +1,5 @@
 import pygame
 import sys
-import math
 import random
 #import .base
 import time
@@ -11,7 +10,7 @@ from pygame.constants import KEYDOWN, KEYUP, K_F15
 from pygame.constants import K_w, K_a, K_s, K_d
 import numpy as np
 
-WINWIDTH = 480  # width of the program's window, in pixels
+WINWIDTH = 680  # width of the program's window, in pixels
 WINHEIGHT = 480  # height in pixels
 RADIUS = 2      # radius of the circles
 PLAYERS = 1      # number of players
@@ -38,26 +37,12 @@ class AchtungPlayer:
         self.width = width
         self.x = random.randrange(50, WINWIDTH - WINWIDTH/4)
         self.y = random.randrange(50, WINHEIGHT - WINHEIGHT/4)
-        self.angle = random.randrange(0, 360)
-        #image = pygame.Surface((width, width))
-        #image.fill((0, 0, 0, 0))
-        #image.set_colorkey((0, 0, 0))
-        #pygame.draw.rect(
-        #    image,
-        #    color,
-        #    (0, 0, self.width, self.width),
-        #    0
-        #)
-
-        #self.image = image
-        #self.rect = self.image.get_rect()
-
-        # self.rect.center = (self.x, self.y)
+        self.angle = random.randrange(0, 350, 10)
 
     def move(self):
         # computes current movement
-        self.x += int(RADIUS * 3 * math.cos(math.radians(self.angle)))
-        self.y += int(RADIUS * 3 * math.sin(math.radians(self.angle)))
+        self.x += int(RADIUS * 3 * np.cos(np.deg2rad(self.angle)))
+        self.y += int(RADIUS * 3 * np.sin(np.deg2rad(self.angle)))
 
     def draw(self, screen):
         if self.skip:
@@ -135,7 +120,7 @@ class AchtungDieKurve(gym.Env):
         Setups up the pygame env, the display and game clock.
         """
         pygame.init()
-        self.screen = pygame.display.set_mode(self.getScreenDims(), 0, 32)
+        self.screen = pygame.display.set_mode(self.getScreenDims())
         self.clock = pygame.time.Clock()
 
     def getActions(self):
@@ -176,9 +161,13 @@ class AchtungDieKurve(gym.Env):
 
                 if key == self.actions["left"]:
                     self.player.angle -= 10
+                    if self.player.angle <= 0:
+                        self.player.angle += 360
 
                 if key == self.actions["right"]:
                     self.player.angle += 10
+                    if self.player.angle >= 360:
+                        self.player.angle -= 360
 
     def setAction(self, action, last_action):
         """
@@ -313,18 +302,35 @@ class AchtungDieKurve(gym.Env):
             * y position.
 
             See code for structure.
-
         """
-
         state = {
             "player_x": self.player.x,
             "player_y": self.player.y,
-            "angle": self.player.angle
+            "angle": self.player.angle,
+            "beam": self.get_beam()
         }
-
 
         return state
 
+    def get_beam(self):
+        time.sleep(1)
+        beam = []
+        angle_diff = -90
+        for beam_direction in range(5):
+            angle = self.player.angle + angle_diff
+            ping = False
+            step = 0
+            while not ping:
+                step += 3
+                x_pos = int(self.player.x + step*np.cos(np.deg2rad(angle)))
+                y_pos = int(self.player.y + step*np.sin(np.deg2rad(angle)))
+                #print(x_pos,y_pos)
+                if self.collision(x_pos,y_pos):
+                    beam.append(np.sqrt((x_pos - self.player.x)**2
+                     + (y_pos - self.player.y)**2))
+                    ping = True
+            angle_diff += 45
+        return beam
     def getScreenDims(self):
         """
         Gets the screen dimensions of the game in tuple form.
@@ -361,19 +367,19 @@ class AchtungDieKurve(gym.Env):
         self.ticks = 0
         self.lives = 1
 
-    def collision(self):
+    def collision(self,x,y,skip=False):
         collide_check = False
         try:
-            x_check = (self.player.x < 0) or \
-                      (self.player.x > self.width)
-            y_check = (self.player.y < 0) or \
-                      (self.player.y > self.height)
+            x_check = (x < 0) or \
+                      (x > self.width)
+            y_check = (y < 0) or \
+                      (y > self.height)
 
-            collide_check = self.screen.get_at((self.player.x, self.player.y)) != self.BG_COLOR
+            collide_check = self.screen.get_at((x, y)) != self.BG_COLOR
         except IndexError:
-            x_check = (self.player.x < 0) or (self.player.x > self.width)
-            y_check = (self.player.y < 0) or (self.player.y > self.height)
-        if self.player.skip:
+            x_check = (x < 0) or (x > self.width)
+            y_check = (y < 0) or (y > self.height)
+        if skip:
             collide_check = False
         return any([x_check, y_check, collide_check])
 
@@ -388,7 +394,7 @@ class AchtungDieKurve(gym.Env):
         self.score += self.rewards["tick"]
         self.player.update()
 
-        if self.collision():
+        if self.collision(self.player.x,self.player.y,self.player.skip):
             self.lives = -1
 
         if self.lives <= 0.0:
