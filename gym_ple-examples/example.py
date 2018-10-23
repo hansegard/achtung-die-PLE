@@ -1,9 +1,11 @@
 import logging
 import os, sys
-
 import gym
 from gym.wrappers import Monitor
+import gym_achtung
 import gym_ple
+
+
 
 # The world's simplest agent!
 class RandomAgent(object):
@@ -13,6 +15,7 @@ class RandomAgent(object):
     def act(self, observation, reward, done):
         return self.action_space.sample()
 
+
 if __name__ == '__main__':
     # You can optionally set up the logger. Also fine to set the level
     # to logging.DEBUG or logging.WARN if you want to change the
@@ -20,7 +23,7 @@ if __name__ == '__main__':
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
-    env = gym.make('FlappyBird-v0' if len(sys.argv)<2 else sys.argv[1])
+    env = gym.make("AchtungDieKurve-v1")
 
     # You provide the directory to write to (can be an existing
     # directory, including one with existing data -- all monitor files
