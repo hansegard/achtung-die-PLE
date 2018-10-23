@@ -15,6 +15,7 @@ WINHEIGHT = 480  # height in pixels
 RADIUS = 2      # radius of the circles
 PLAYERS = 1      # number of players
 SKIP_PROBABILITY = 0.05
+NOOFBEAMS = 5
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -101,7 +102,7 @@ class AchtungDieKurve(gym.Env):
         self.rng = None
         self._action_set = self.getActions()
         self.action_space = spaces.Discrete(len(self._action_set))
-        self.observation_space = spaces.Box(low=0, high=255, shape=(self.width, self.height, 3), dtype = np.uint8)
+        self.observation_space = spaces.Box(low=0,high=WINWIDTH,shape=(3+NOOFBEAMS,))
 
         self.rewards = {    # TODO: take as input
                     "positive": 1.0,
@@ -303,17 +304,9 @@ class AchtungDieKurve(gym.Env):
 
             See code for structure.
         """
-        state = {
-            "player_x": self.player.x,
-            "player_y": self.player.y,
-            "angle": self.player.angle,
-            "beam": self.get_beam()
-        }
-
-        return state
+        return [self.player.x,self.player.y,self.player.angle,self.get_beam()]
 
     def get_beam(self):
-        time.sleep(1)
         beam = []
         angle_diff = -90
         for beam_direction in range(5):
@@ -409,14 +402,13 @@ class AchtungDieKurve(gym.Env):
         return state, reward, terminal, {}
 
     def reset(self):
-        self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_dim[0], self.screen_dim[1], 3), dtype=np.uint8)
         self.last_action = []
         self.action = []
         self.previous_score = 0.0
         self.iteration += 1
         pygame.display.set_caption('Achtung Die DDQ Iteration %d' % self.iteration)
         self.init()
-        state = self.getGameState
+        state = self.getGameState()
         return state
 
     def render(self, mode='human', close=False):
