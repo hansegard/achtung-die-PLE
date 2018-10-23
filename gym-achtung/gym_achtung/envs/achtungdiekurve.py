@@ -39,7 +39,6 @@ class AchtungPlayer:
         self.x = random.randrange(50, WINWIDTH - WINWIDTH/4)
         self.y = random.randrange(50, WINHEIGHT - WINHEIGHT/4)
         self.angle = random.randrange(0, 360)
-
         #image = pygame.Surface((width, width))
         #image.fill((0, 0, 0, 0))
         #image.set_colorkey((0, 0, 0))
@@ -67,7 +66,6 @@ class AchtungPlayer:
             self.skip = 1
         else:
             pygame.draw.circle(screen, WHITE, (self.x, self.y), self.width)
-
     def update(self):
         self.move()
 
@@ -83,21 +81,20 @@ class AchtungDieKurve(gym.Env):
     height : int
         Screen height, recommended to be same dimension as width.
 
-    init_length : int (default: 3)
-        The starting number of segments the snake has. Do not set below 3 segments. Has issues with hitbox detection with the body for lower values.
 
     """
 
     def __init__(self,
                  width=WINWIDTH,
                  height=WINHEIGHT, fps=30, frame_skip=1, num_steps=1,
-                 force_fps=True, display_screen=False, add_noop_action=True, rng=24):
+                 force_fps=True, add_noop_action=True, rng=24):
 
         self.actions = {
             "left": K_a,
             "right": K_d,
         }
 
+        self.iteration = 0
         self.score = 0.0  # required.
         self.lives = 0  # required. Can be 0 or -1 if not required.
         self.ticks = 0
@@ -109,7 +106,6 @@ class AchtungDieKurve(gym.Env):
         self.force_fps = force_fps
         self.viewer = None
         self.add_noop_action = add_noop_action
-        self.display_screen = display_screen
         self.last_action = []
         self.action = []
         self.height = height
@@ -212,13 +208,15 @@ class AchtungDieKurve(gym.Env):
 
     def act(self, action):
         """
-        Perform an action on the game. We lockstep frames with actions. If act is not called the game will not run.
+        Perform an action on the game. We lockstep frames with actions.
+        If act is not called the game will not run.
 
         Parameters
         ----------
 
         action : int
-            The index of the action we wish to perform. The index usually corresponds to the index item returned by getActionSet().
+            The index of the action we wish to perform. The index usually
+            corresponds to the index item returned by getActionSet().
 
         Returns
         -------
@@ -231,7 +229,8 @@ class AchtungDieKurve(gym.Env):
 
     def _oneStepAct(self, action):
         """
-        Performs an action on the game. Checks if the game is over or if the provided action is valid based on the allowed action set.
+        Performs an action on the game. Checks if the game is over
+        or if the provided action is valid based on the allowed action set.
         """
 
         if self.game_over():
@@ -244,7 +243,6 @@ class AchtungDieKurve(gym.Env):
         for i in range(self.num_steps):
             time_elapsed = self._tick()
             self.__step(time_elapsed)
-            self._draw_frame()
 
         self.frame_count += self.num_steps
 
@@ -258,38 +256,6 @@ class AchtungDieKurve(gym.Env):
         self.previous_score = self.getScore()
 
         return reward
-
-    def getScreenRGB(self):
-        """
-        Returns the current game screen in RGB format.
-
-        Returns
-        --------
-        numpy uint8 array
-            Returns a numpy array with the shape (width, height, 3).
-
-        """
-
-        return pygame.surfarray.array3d(
-            pygame.display.get_surface()).astype(np.uint8)
-
-    def getScreenGrayscale(self):
-        """
-        Gets the current game screen in Grayscale format. Converts from RGB using relative lumiance.
-
-        Returns
-        --------
-        numpy uint8 array
-                Returns a numpy array with the shape (width, height).
-
-
-        """
-        frame = self.getScreenRGB()
-        frame = 0.21 * frame[:, :, 0] + 0.72 * \
-            frame[:, :, 1] + 0.07 * frame[:, :, 2]
-        frame = np.round(frame).astype(np.uint8)
-
-        return frame
 
     def getFrameNumber(self):
         """
@@ -328,7 +294,8 @@ class AchtungDieKurve(gym.Env):
         Parameters
         ----------
         rewards : dict
-            A dictonary of reward events to float rewards. Only updates if key matches those specificed in the init function.
+            A dictonary of reward events to float rewards. Only updates if key
+            matches those specificed in the init function.
 
         """
         for key in rewards.keys():
@@ -353,8 +320,8 @@ class AchtungDieKurve(gym.Env):
             "player_x": self.player.x,
             "player_y": self.player.y,
             "angle": self.player.angle
-
         }
+
 
         return state
 
@@ -376,14 +343,6 @@ class AchtungDieKurve(gym.Env):
     def game_over(self):
         return self.lives == -1
 
-    def _draw_frame(self):
-        """
-        Decides if the screen will be drawn too
-        """
-
-        if self.display_screen:
-            pygame.display.update()
-
     def setRNG(self, rng):
         """
         Sets the rng for games.
@@ -402,17 +361,8 @@ class AchtungDieKurve(gym.Env):
         self.ticks = 0
         self.lives = 1
 
-    def __step(self, dt):
-        """
-            Perform one step of game emulation.
-        """
-        dt /= 1000.0
-
-        self.ticks += 1
-        self._handle_player_events()
-        self.score += self.rewards["tick"]
-        self.player.update()
-        collide_check = 0
+    def collision(self):
+        collide_check = False
         try:
             x_check = (self.player.x < 0) or \
                       (self.player.x > self.width)
@@ -423,10 +373,22 @@ class AchtungDieKurve(gym.Env):
         except IndexError:
             x_check = (self.player.x < 0) or (self.player.x > self.width)
             y_check = (self.player.y < 0) or (self.player.y > self.height)
-
         if self.player.skip:
-            collide_check = 0
-        if x_check or y_check or collide_check:
+            collide_check = False
+        return any([x_check, y_check, collide_check])
+
+    def __step(self, dt):
+        """
+            Perform one step of game emulation.
+        """
+        dt /= 1000.0
+
+        self.ticks += 1
+        self._handle_player_events()
+        self.score += self.rewards["tick"]
+        self.player.update()
+
+        if self.collision():
             self.lives = -1
 
         if self.lives <= 0.0:
@@ -436,7 +398,7 @@ class AchtungDieKurve(gym.Env):
 
     def step(self, a):
         reward = self.act(self._action_set[a])
-        state = self.getScreenRGB()
+        state = self.getGameState()
         terminal = self.game_over()
         return state, reward, terminal, {}
 
@@ -445,43 +407,16 @@ class AchtungDieKurve(gym.Env):
         self.last_action = []
         self.action = []
         self.previous_score = 0.0
+        self.iteration += 1
+        pygame.display.set_caption('Achtung Die DDQ Iteration %d' % self.iteration)
         self.init()
-        state = self.getScreenRGB()
+        state = self.getGameState
         return state
 
     def render(self, mode='human', close=False):
-        if close:
-            if self.viewer is not None:
-                self.viewer.close()
-                self.viewer = None
-            return
-        img = self.getScreenRGB()
-        if mode == 'rgb_array':
-            return img
-        elif mode == 'human':
-            from gym.envs.classic_control import rendering
-            if self.viewer is None:
-                self.viewer = rendering.SimpleImageViewer()
-            self.viewer.imshow(img)
+        pygame.display.update()
 
     def seed(self, seed):
         rng = np.random.RandomState(seed)
         self.rng = rng
         self.init()
-
-
-if __name__ == "__main__":
-
-    pygame.init()
-    game = AchtungDieKurve(width=WINWIDTH, height=WINHEIGHT)
-    game.clock = pygame.time.Clock()
-    game.rng = np.random.RandomState(24)
-    game.init()
-
-    while True:
-        if game.game_over():
-            game.init()
-
-        dt = game.clock.tick_busy_loop(30)
-        game.step(dt)
-        pygame.display.update()

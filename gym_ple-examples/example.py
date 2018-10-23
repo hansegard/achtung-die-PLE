@@ -2,7 +2,7 @@ import logging
 import os, sys
 
 import gym
-import gym_ple
+import gym_achtung
 
 # The world's simplest agent!
 class RandomAgent(object):
@@ -19,7 +19,7 @@ if __name__ == '__main__':
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
-    env = gym.make('AchtungDieKurve-v0' if len(sys.argv)<2 else sys.argv[1])
+    env = gym.make('AchtungDieKurve-v1')
 
     # You provide the directory to write to (can be an existing
     # directory, including one with existing data -- all monitor files
