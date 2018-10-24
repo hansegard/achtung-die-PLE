@@ -304,7 +304,7 @@ class AchtungDieKurve(gym.Env):
 
             See code for structure.
         """
-        return [self.player.x,self.player.y,self.player.angle,self.get_beam()]
+        return [self.player.x, self.player.y, self.player.angle, self.get_beam()]
 
     def get_beam(self):
         beam = []
