@@ -10,12 +10,13 @@ from pygame.constants import KEYDOWN, KEYUP, K_F15
 from pygame.constants import K_w, K_a, K_s, K_d
 import numpy as np
 
-WINWIDTH = 680  # width of the program's window, in pixels
-WINHEIGHT = 480  # height in pixels
+WINWIDTH = 720  # width of the program's window, in pixels
+WINHEIGHT = 576  # height in pixels
 RADIUS = 2      # radius of the circles
 PLAYERS = 1      # number of players
 SKIP_PROBABILITY = 0.05
-NOOFBEAMS = 5
+NOOFBEAMS = 9 # must be un-even!
+SIZEOFUINT16 = 65535
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -42,8 +43,8 @@ class AchtungPlayer:
 
     def move(self):
         # computes current movement
-        self.x += int(RADIUS * 3 * np.cos(np.deg2rad(self.angle)))
-        self.y += int(RADIUS * 3 * np.sin(np.deg2rad(self.angle)))
+        self.x += int(RADIUS * 2 * np.cos(np.deg2rad(self.angle)))
+        self.y += int(RADIUS * 2 * np.sin(np.deg2rad(self.angle)))
 
     def draw(self, screen):
         if self.skip:
@@ -56,7 +57,7 @@ class AchtungPlayer:
         self.move()
 
 
-class AchtungDieKurve(gym.Env):
+class AchtungDieKurveBigGrid(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
     """
     Parameters
@@ -80,13 +81,12 @@ class AchtungDieKurve(gym.Env):
             "right": K_d,
         }
 
-        self.iteration = 0
         self.score = 0.0  # required.
         self.lives = 0  # required. Can be 0 or -1 if not required.
         self.ticks = 0
         self.previous_score = 0
         self.frame_count = 0
-        self.fps = fps
+        self.fps = 30
         self.frame_skip = frame_skip
         self.num_steps = num_steps
         self.force_fps = force_fps
@@ -102,13 +102,13 @@ class AchtungDieKurve(gym.Env):
         self.rng = None
         self._action_set = self.getActions()
         self.action_space = spaces.Discrete(len(self._action_set))
-        self.observation_space = spaces.Box(low=0,high=WINWIDTH,shape=(3+NOOFBEAMS,))
+        self.observation_space = spaces.Box(low=0,high=1024,shape=(3+NOOFBEAMS,),dtype='uint16')
 
         self.rewards = {    # TODO: take as input
                     "positive": 1.0,
                     "negative": -1.0,
-                    "tick": 0,
-                    "loss": -5.0,
+                    "tick": 0.01,
+                    "loss": 0,
                     "win": 5.0
                 }
         self.BG_COLOR = (25, 25, 25)
@@ -304,13 +304,15 @@ class AchtungDieKurve(gym.Env):
 
             See code for structure.
         """
-        return [self.player.x, self.player.y, self.player.angle, self.get_beam()]
+        state = [self.player.x, self.player.y, self.player.angle]
+        return np.append(state,np.round(self.get_beam())).astype('uint16')
 
     def get_beam(self):
         beam = []
-        angle_diff = -90
-        for beam_direction in range(5):
-            angle = self.player.angle + angle_diff
+        looking_angle = -90
+        angle_stepsize = 180/(NOOFBEAMS-1)
+        for beam_direction in range(NOOFBEAMS):
+            angle = self.player.angle + looking_angle
             ping = False
             step = 0
             while not ping:
@@ -322,8 +324,9 @@ class AchtungDieKurve(gym.Env):
                     beam.append(np.sqrt((x_pos - self.player.x)**2
                      + (y_pos - self.player.y)**2))
                     ping = True
-            angle_diff += 45
-        return beam
+            looking_angle += angle_stepsize
+        return np.array(beam)
+
     def getScreenDims(self):
         """
         Gets the screen dimensions of the game in tuple form.
@@ -405,8 +408,6 @@ class AchtungDieKurve(gym.Env):
         self.last_action = []
         self.action = []
         self.previous_score = 0.0
-        self.iteration += 1
-        pygame.display.set_caption('Achtung Die DDQ Iteration %d' % self.iteration)
         self.init()
         state = self.getGameState()
         return state

@@ -1,1 +1,2 @@
-from gym_achtung.envs.achtungdiekurve import AchtungDieKurve
+from gym_achtung.envs.achtungdiekurve_smallgrid import AchtungDieKurveSmallGrid
+from gym_achtung.envs.achtungdiekurve_biggrid import AchtungDieKurveBigGrid

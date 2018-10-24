@@ -9,9 +9,12 @@ def main():
     env = gym.make("AchtungDieKurveSmallGrid-v0")
     env = DummyVecEnv([lambda: env])
 
-    model = DQN(MlpPolicy,env,gamma=0.99,exploration_fraction=0.1,learning_rate=0.001, verbose=1)
-    model.learn(total_timesteps=90000,log_interval=10)
-    model.save("03")
+    model = DQN.load("03.pkl",env)
 
+    obs = env.reset()
+    while True:
+        action, _states = model.predict(obs)
+        obs, rewards, dones, info = env.step(action)
+        env.render()
 if __name__ == '__main__':
     main()
