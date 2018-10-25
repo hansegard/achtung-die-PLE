@@ -10,7 +10,7 @@ import numpy as np
 from gym_achtung.envs.achtungplayer import AchtungPlayer
 
 RADIUS = 4      # radius of the circles
-NOOFBEAMS = 9 # must be un-even!
+NOOFBEAMS = 7 # must be un-even!
 
 WHITE = (255, 255, 255)
 BG_COLOR = (25, 25, 25)
@@ -269,7 +269,7 @@ class AchtungDieKurve(gym.Env):
             ping = False
             step = RADIUS
             while not ping:
-                step += 1
+                step += 2
                 x_pos = int(np.round(self.player.x + step*np.cos(np.deg2rad(angle))))
                 y_pos = int(np.round(self.player.y + step*np.sin(np.deg2rad(angle))))
                 if self.collision(x_pos,y_pos):

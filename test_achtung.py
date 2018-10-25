@@ -9,7 +9,7 @@ def main():
     env = gym.make("AchtungDieKurveBigGrid-v0")
     env = DummyVecEnv([lambda: env])
 
-    model = DQN.load("04.pkl",env)
+    model = DQN.load("05.pkl",env)
 
     obs = env.reset()
     while True:
