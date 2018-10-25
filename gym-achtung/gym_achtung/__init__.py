@@ -15,3 +15,11 @@ register(
     reward_threshold=1.0,
     nondeterministic=True,
 )
+
+register(
+    id='AchtungDieKurveAgainstPlayer-v0',
+    entry_point='gym_achtung.envs:AchtungDieKurveAgainstPlayer',
+    timestep_limit=10000,
+    reward_threshold=1.0,
+    nondeterministic=True,
+)
