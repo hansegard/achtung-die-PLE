@@ -9,8 +9,7 @@ from pygame.constants import K_w, K_a, K_s, K_d
 import numpy as np
 from gym_achtung.envs.achtungplayer import AchtungPlayer
 
-RADIUS = 2      # radius of the circles
-PLAYERS = 1      # number of players
+RADIUS = 4      # radius of the circles
 NOOFBEAMS = 9 # must be un-even!
 
 WHITE = (255, 255, 255)
@@ -186,7 +185,7 @@ class AchtungDieKurve(gym.Env):
         self._setAction(action)
         for i in range(self.num_steps):
             time_elapsed = self._tick()
-            self.__step(time_elapsed)
+            self._step(time_elapsed)
 
         self.frame_count += self.num_steps
 
@@ -332,7 +331,7 @@ class AchtungDieKurve(gym.Env):
             collide_check = False
         return any([x_check, y_check, collide_check])
 
-    def __step(self, dt):
+    def _step(self, dt):
         """
             Perform one step of game emulation.
         """

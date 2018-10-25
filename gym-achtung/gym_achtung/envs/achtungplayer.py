@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import pygame
+import pygame.gfxdraw
 
 SKIP_PROBABILITY = 0.05
 
@@ -27,6 +28,8 @@ class AchtungPlayer:
         elif np.random.rand() < SKIP_PROBABILITY:
             self.skip = True
         else:
-            pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
+            #pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
+            pygame.gfxdraw.aacircle(screen, self.x, self.y, self.radius, self.color)
+            pygame.gfxdraw.filled_circle(screen, self.x, self.y, self.radius, self.color)
     def update(self):
         self.move()
