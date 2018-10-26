@@ -10,7 +10,7 @@ import numpy as np
 from gym_achtung.envs.achtungplayer import AchtungPlayer
 
 RADIUS = 4      # radius of the circles
-NOOFBEAMS = 7 # must be un-even!
+NOOFBEAMS = 5 # must be un-even!
 
 WHITE = (255, 255, 255)
 BG_COLOR = (25, 25, 25)
@@ -56,7 +56,7 @@ class AchtungDieKurve(gym.Env):
         self.rng = None
         self._action_set = self.getActions()
         self.action_space = spaces.Discrete(len(self._action_set))
-        self.observation_space = spaces.Box(low=0,high=1024,shape=(3+NOOFBEAMS,))
+        self.observation_space = spaces.Box(low=0,high=2048,shape=(3+NOOFBEAMS,))
 
         self.rewards = {    # TODO: take as input
                     "positive": 1.0,
@@ -277,7 +277,7 @@ class AchtungDieKurve(gym.Env):
                      + (y_pos - self.player.y)**2))
                     ping = True
             looking_angle += angle_stepsize
-        return np.array(beam)
+        return np.round(np.array(beam))
 
     def getScreenDims(self):
         """

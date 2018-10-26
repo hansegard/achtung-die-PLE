@@ -9,9 +9,10 @@ def main():
     env = gym.make("AchtungDieKurveSmallGrid-v0")
     env = DummyVecEnv([lambda: env])
 
-    model = DQN(MlpPolicy,env,gamma=0.95,exploration_fraction=0.25,learning_rate=0.001, verbose=1)
-    model.learn(total_timesteps=150000,log_interval=20)
-    model.save("05")
+    model = DQN(MlpPolicy,env,gamma=0.99,exploration_fraction=0.3,
+    learning_rate=0.0005, verbose=1,learning_starts=10000)
+    model.learn(total_timesteps=500000,log_interval=100)
+    model.save("07")
 
 if __name__ == '__main__':
     main()
