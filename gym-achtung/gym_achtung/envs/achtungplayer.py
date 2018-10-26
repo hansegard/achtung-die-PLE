@@ -15,7 +15,7 @@ class AchtungPlayer:
         # generates random position and direction
         self.x = random.randrange(win_width - 3*win_width/4, win_width - win_width/4)
         self.y = random.randrange(win_height - 3*win_height/4, win_height - win_height/4)
-        self.angle = random.randrange(0, 350, 10)
+        self.angle = random.randrange(0, 345, 15)
 
     def move(self):
         # computes current movement

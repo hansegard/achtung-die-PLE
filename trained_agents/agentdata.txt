@@ -20,4 +20,21 @@
 06. model = DQN(MlpPolicy,env,gamma=0.99,exploration_fraction=0.15,learning_rate=0.001, verbose=1)
     model.learn(total_timesteps=300000,log_interval=20)
 
+07. model = DQN(MlpPolicy,env,render = True,gamma=0.99,exploration_fraction=0.3,
+    learning_rate=0.0005, verbose=1,learning_starts=10000)
+    model.learn(total_timesteps=500000,log_interval=100)
+
+-- Changed beams to 7, changed turn to 15 degrees (MUCH BETTER RESULTS--
+
+08. model = DQN(MlpPolicy,env,render=False,buffer_size=25000,gamma=0.99,exploration_fraction=0.1,
+    learning_rate=0.0005, verbose=1,learning_starts=1000)
+    model.learn(total_timesteps=100000,log_interval=100)
+
+09. model = DQN(MlpPolicy,env,render=False,buffer_size=25000,gamma=0.99,exploration_fraction=0.1,
+    learning_rate=0.0005, verbose=1,learning_starts=1000)
+    model.learn(total_timesteps=300000,log_interval=100)
+
+
+
+
 

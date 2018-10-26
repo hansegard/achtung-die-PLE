@@ -10,7 +10,7 @@ import numpy as np
 from gym_achtung.envs.achtungplayer import AchtungPlayer
 
 RADIUS = 4      # radius of the circles
-NOOFBEAMS = 5 # must be un-even!
+NOOFBEAMS = 7 # must be un-even!
 
 WHITE = (255, 255, 255)
 BG_COLOR = (25, 25, 25)
@@ -114,12 +114,12 @@ class AchtungDieKurve(gym.Env):
                     sys.exit()
 
                 if key == self.actions["left"]:
-                    self.player.angle -= 10
+                    self.player.angle -= 15
                     if self.player.angle <= 0:
                         self.player.angle += 360
 
                 if key == self.actions["right"]:
-                    self.player.angle += 10
+                    self.player.angle += 15
                     if self.player.angle >= 360:
                         self.player.angle -= 360
 

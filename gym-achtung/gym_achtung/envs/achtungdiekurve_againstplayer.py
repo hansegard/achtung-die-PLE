@@ -1,6 +1,7 @@
 from gym_achtung.envs.achtungdiekurve import AchtungDieKurve
 from gym_achtung.envs.achtungplayer import AchtungPlayer
 import pygame
+import numpy as np
 
 WINWIDTH = 1280  # width of the program's window, in pixels
 WINHEIGHT = 576  # height in pixels
@@ -45,11 +46,11 @@ class AchtungDieKurveAgainstPlayer(AchtungDieKurve):
     def _handle_human_player_events(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
-            self.humanplayer.angle -= 10
+            self.humanplayer.angle -= 15
             if self.humanplayer.angle <= 0:
                 self.humanplayer.angle += 360
         if keys[pygame.K_RIGHT]:
-            self.humanplayer.angle += 10
+            self.humanplayer.angle += 15
             if self.humanplayer.angle >= 360:
                 self.humanplayer.angle -= 360
 
@@ -62,6 +63,13 @@ class AchtungDieKurveAgainstPlayer(AchtungDieKurve):
         self.humanplayer.draw(self.screen)
         super()._step(dt)
 
+    def step(self, a):
+        reward = self.act(self._action_set[a])
+        state = self.getGameState()
+        terminal = self.game_over()
+        score = [self.aiscore, self.humanscore]
+        return state, reward, terminal, score
+
     def ai_won(self):
         self.aiwon = True
         self.aiscore += 1
@@ -72,7 +80,7 @@ class AchtungDieKurveAgainstPlayer(AchtungDieKurve):
             self.aiscore += 1
         else:
             self.humanscore += 1
-        pygame.display.set_caption('Achtung AI - AI score: {} Human score: {}'.format(self.aiscore,self.humanscore))
+        pygame.display.set_caption('Achtung, DieQN Kurve! - AI score: {} Human score: {}'.format(self.aiscore,self.humanscore))
         self.human_init()
         self.aiwon = False
         super().reset()

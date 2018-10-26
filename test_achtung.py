@@ -6,10 +6,10 @@ from stable_baselines.deepq.policies import MlpPolicy
 from stable_baselines import DQN
 
 def main():
-    env = gym.make("AchtungDieKurveSmallGrid-v0")
+    env = gym.make("AchtungDieKurveBigGrid-v0")
     env = DummyVecEnv([lambda: env])
 
-    model = DQN.load("06.pkl",env)
+    model = DQN.load("09.pkl",env)
 
     obs = env.reset()
     while True:
