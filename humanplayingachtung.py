@@ -1,80 +1,55 @@
-import random
-import sys
-import time
+import gym
+import gym_achtung
+import os
+
 import numpy as np
-import pygame
-import pygame.gfxdraw
-from gym_achtung.envs.achtungplayer import AchtungPlayer
+import time
+from stable_baselines.common.vec_env import DummyVecEnv
+from stable_baselines.deepq.policies import MlpPolicy
+from stable_baselines import DQN
 
-
-from math import *
-from pygame.locals import *
-
-SPEED = 10       # frames per second setting
-WINWIDTH = 452  # width of the program's window, in pixels
-WINHEIGHT = 452  # height in pixels
-RADIUS = 4       # radius of the circles
-PLAYERS = 1      # number of players
-
-BG_COLOR = (25, 25, 25)
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-P1COLOUR = RED
-P2COLOUR = GREEN
-P3COLOUR = BLUE
-
+NOOFITERATIONS = 50
 
 def main():
-    # main loop
-    global FPS_CLOCK, SCREEN, DISPLAYSURF, MY_FONT
-    pygame.init()
-    FPS_CLOCK = pygame.time.Clock()
-    SCREEN = pygame.display.set_mode((WINWIDTH, WINHEIGHT))
-    pygame.display.set_caption('FarBy!')
+
+    human_score_prev = 0
+    env = gym.make("AchtungDieKurveHumanPlayer-v0")
+    env = DummyVecEnv([lambda: env])
+
+    model = DQN.load("trained_agents/11.pkl",env)
+
+    obs = env.reset()
+    action, _states = model.predict(obs)
+    iteration = 0
+    tick = 0
+    scores = []
+    max_score = 0
 
     while True:
-        rungame()
-        gameover()
-
-def rungame():
-    iterating = True
-    while iterating:
-        SCREEN.fill(BG_COLOR)
-        player = AchtungPlayer(WHITE, WINWIDTH, WINHEIGHT, RADIUS)
-        run = True
-        while run:
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_LEFT]:
-                player.angle -= 15
-                if player.angle <= 0:
-                    player.angle += 360
-            if keys[pygame.K_RIGHT]:
-                player.angle += 15
-                if player.angle >= 360:
-                    player.angle -= 360
-            player.move()
-            if collision(player.x,player.y):
-                run = False
-            player.draw(SCREEN)
-
-def collision(x,y,skip=False):
-    collide_check = False
-    try:
-        x_check = (x < 0) or \
-                  (x > WINWIDTH)
-        y_check = (y < 0) or \
-                  (y > WINHEIGHT)
-
-        collide_check = SCREEN.get_at((x, y)) != BG_COLOR
-    except IndexError:
-        x_check = (x < 0) or (x > WINWIDTH)
-        y_check = (y < 0) or (y > WINHEIGHT)
-    if skip:
-        collide_check = False
-    return any([x_check, y_check, collide_check])
-
+        obs, rewards, dones, score = env.step(action)
+        tick += 0.01
+        if dones:
+            iteration += 1
+            scores.append(tick)
+            if tick > max_score:
+                max_score = tick
+            print('Iteration: {}, Score: {}, Max score: {}'.format(iteration, tick,max_score))
+            if iteration == NOOFITERATIONS:
+                break
+            tick = 0
+        env.render()
+    print('Mean score over {} iterations: {}'.format(NOOFITERATIONS,np.mean(scores)))
+def print_score(score):
+    os.system('cls' if os.name == 'nt' else 'clear')
+    str = "AI Score: {} Human Score: {}"
+    print(str.format(score[0],score[1]))
+    if score[0] >= winning_score:
+        print('The AI won!')
+        return True
+    elif score[1] >= winning_score:
+        print('You won!')
+        return True
+    time.sleep(0.5)
+    return False
 if __name__ == '__main__':
     main()

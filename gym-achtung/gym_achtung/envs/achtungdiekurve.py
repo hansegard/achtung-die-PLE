@@ -315,6 +315,7 @@ class AchtungDieKurve(gym.Env):
         self.ticks = 0
         self.lives = 1
 
+
     def collision(self,x,y,skip=False):
         collide_check = False
         try:

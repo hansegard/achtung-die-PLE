@@ -14,3 +14,8 @@ register(
     id='AchtungDieKurveAgainstPlayer-v0',
     entry_point='gym_achtung.envs:AchtungDieKurveAgainstPlayer',
 )
+
+register(
+    id='AchtungDieKurveHumanPlayer-v0',
+    entry_point='gym_achtung.envs:AchtungDieKurveHumanPlayer',
+)
