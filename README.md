@@ -1,32 +1,27 @@
 # achtung-die-PLE
-Make sure you are in the correct environment (such as dml or dml_game)
+Download anaconda or miniconda or something similar.   
 
-To install PLE:
+Clone the repo   
+Create an environment using the file dml_game_env.yml and activate it   
 ```
-git clone https://github.com/ntasfi/PyGame-Learning-Environment.git
-cd PyGame-Learning-Environment/
+conda env create -f dml_game_env.yml
+source activate dml_game
+```
+
+Install the gym-achtung with pip   
+
+```
+cd gym_achtung
 pip install -e .
 ```
-To install pygame:
+
+
+# Play against agent
 ```
-pip install pygame
+python achtungdiekurve_againstplayer.py
 ```
 
-To install gym_ple:
+# Play against yourself
 ```
-pip install gym_ple
+python achtungdiekurve_humanplayer.py
 ```
-Try to run flappy bird example from folder (ffmpeg download maybe required):
-```
-python ./example.py
-```
-Test output in "hard drive"/tmp/random-agent-result.  
-
-TODO:  
-Write a snake implementation using gym-ple  
-Modify snake to work like achtung die kurve  
-Train  
-Win  
-https://github.com/lusob/gym-ple  
-https://github.com/ntasfi/PyGame-Learning-Environment  
-https://gym.openai.com/  

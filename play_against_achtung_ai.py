@@ -36,7 +36,6 @@ def main():
         if score[0] > ai_score_prev or score[1] > human_score_prev:
             wehaveawinner = print_score(score)
             ai_score_prev, human_score_prev = score
-            time.sleep(30)
         env.render()
 def print_score(score):
     os.system('cls' if os.name == 'nt' else 'clear')
