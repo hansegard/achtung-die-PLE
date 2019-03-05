@@ -1,5 +1,4 @@
 # achtung-die-PLE
-Make sure you are in the correct environment (such as dml or dml_game)
 
 To install PLE:
 ```
